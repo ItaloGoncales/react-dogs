@@ -87,6 +87,8 @@ export const UserStorage = ({ children }) => {
         } catch (error) {
           await userLogout();
         }
+      } else {
+        await userLogout();
       }
     }
 
