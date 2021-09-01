@@ -1,5 +1,6 @@
 /* eslint-disable react/prop-types */
 import React from "react";
+import Image from "../Helpers/Image";
 import styles from "./FeedPhotosItem.module.css";
 
 const FeedPhotosItem = ({ photo, setModalPhoto }) => {
@@ -10,7 +11,7 @@ const FeedPhotosItem = ({ photo, setModalPhoto }) => {
         setModalPhoto(photo);
       }}
     >
-      <img src={photo.src} alt={photo.title} />
+      <Image src={photo.src} alt={photo.title} />
       <span className={styles.visualizacao}>{photo.acessos}</span>
     </li>
   );
