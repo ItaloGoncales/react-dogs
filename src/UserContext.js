@@ -1,7 +1,6 @@
 import React from "react";
-import * as api from "./api";
+import { TOKEN_POST, TOKEN_VALIDATE_POST, USER_GET } from "./api";
 import { useNavigate } from "react-router-dom";
-import useFetch from "./Hooks/useFetch";
 
 export const UserContext = React.createContext();
 
@@ -9,103 +8,75 @@ export const UserContext = React.createContext();
 export const UserStorage = ({ children }) => {
   const [data, setData] = React.useState(null);
   const [login, setLogin] = React.useState(null);
-
-  const { loading, error, request } = useFetch();
+  const [loading, setLoading] = React.useState(false);
+  const [error, setError] = React.useState(null);
   const navigate = useNavigate();
 
-  async function getUser(token) {
-    const { url, options } = api.USER_GET(token);
-
-    const { json } = await request(url, options);
-
-    setData(json);
-    setLogin(true);
-  }
-
-  async function userLogin(username, password) {
-    const { url, options } = api.TOKEN_POST({
-      username,
-      password,
-    });
-
-    try {
-      const { response, json } = await request(url, options);
-      const { token, ...responseData } = json;
-
-      if (!response.ok) throw new Error(`${responseData.message}`);
-
-      window.localStorage.setItem("token", token);
-
-      await getUser(token);
-      navigate("/conta");
-    } catch (error) {
-      setLogin(false);
-    }
-  }
-
-  async function userCreate(username, password, email) {
-    const { url, options } = api.USER_POST({
-      username,
-      password,
-      email,
-    });
-
-    try {
-      const { response, json } = await request(url, options);
-
-      if (!response.ok) throw new Error(`${json.message}`);
-
-      userLogin(username, password);
-    } catch (error) {
-      setLogin(false);
-    }
-  }
-
   const userLogout = React.useCallback(
-    function () {
+    async function () {
       setData(null);
+      setError(null);
+      setLoading(false);
       setLogin(false);
-
       window.localStorage.removeItem("token");
       navigate("/login");
     },
     [navigate]
   );
 
+  async function getUser(token) {
+    const { url, options } = USER_GET(token);
+    const response = await fetch(url, options);
+    const json = await response.json();
+    setData(json);
+    setLogin(true);
+  }
+
+  async function userLogin(username, password) {
+    try {
+      setError(null);
+      setLoading(true);
+      const { url, options } = TOKEN_POST({ username, password });
+      const tokenRes = await fetch(url, options);
+      if (!tokenRes.ok) throw new Error(`Error: ${tokenRes.statusText}`);
+      const { token } = await tokenRes.json();
+      window.localStorage.setItem("token", token);
+      await getUser(token);
+      navigate("/conta");
+    } catch (err) {
+      setError(err.message);
+      setLogin(false);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   React.useEffect(() => {
-    async function autologin() {
+    async function autoLogin() {
       const token = window.localStorage.getItem("token");
-
       if (token) {
-        const { url, options } = api.TOKEN_VALIDATE_POST(token);
-
         try {
-          let { response } = await request(url, options);
-
+          setError(null);
+          setLoading(true);
+          const { url, options } = TOKEN_VALIDATE_POST(token);
+          const response = await fetch(url, options);
           if (!response.ok) throw new Error("Token inválido");
           await getUser(token);
-        } catch (error) {
-          await userLogout();
+        } catch (err) {
+          userLogout();
+        } finally {
+          setLoading(false);
         }
       } else {
-        await userLogout();
+        setLogin(false);
       }
     }
-
-    autologin();
+    autoLogin();
   }, [userLogout]);
 
   return (
     <UserContext.Provider
-      value={{
-        userLogin,
-        userLogout,
-        userCreate,
-        data,
-        error,
-        loading,
-        login,
-      }}
+      value={{ userLogin, userLogout, data, error, loading, login }}
     >
       {children}
     </UserContext.Provider>
