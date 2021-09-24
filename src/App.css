@@ -78,6 +78,16 @@ a {
   z-index: -1;
 }
 
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh + 10rem);
+}
+
+.appBody {
+  flex: 1
+}
+
 .animeLeft {
   opacity: 0;
   transform: translateX(-20px);
@@ -89,4 +99,8 @@ a {
     opacity: 1;
     transform: initial;
   }
+}
+
+.VictoryContainer {
+  height: initial !important;
 }

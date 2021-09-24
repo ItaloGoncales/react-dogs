@@ -6,6 +6,7 @@ import useForm from "../../Hooks/useForm";
 import Button from "../Forms/Button";
 import Input from "../Forms/Input";
 import Error from "../Helpers/Error";
+import Head from "../Helpers/Head";
 
 const LoginResetPassword = () => {
   const [login, setLogin] = React.useState("");
@@ -38,7 +39,8 @@ const LoginResetPassword = () => {
   }
 
   return (
-    <div>
+    <section className="animeLeft">
+      <Head title="Resete a sua senha" />
       <h1 className="title">Resete a Senha</h1>
       <form onSubmit={handleSubmit}>
         <Input
@@ -54,7 +56,7 @@ const LoginResetPassword = () => {
         )}
         <Error error={error} />
       </form>
-    </div>
+    </section>
   );
 };
 
