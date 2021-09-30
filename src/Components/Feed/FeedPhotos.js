@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React from "react";
 import { PHOTOS_GET } from "../../api";
 import Error from "../Helpers/Error";
@@ -6,6 +5,7 @@ import useFetch from "../../Hooks/useFetch";
 import FeedPhotosItem from "./FeedPhotosItem";
 import Loading from "../Helpers/Loading";
 import styles from "./FeedPhotos.module.css";
+import PropTypes from "prop-types";
 
 const FeedPhotos = ({ user, page, setInfinite, setModalPhoto }) => {
   let { data, loading, error, request } = useFetch();
@@ -42,3 +42,21 @@ const FeedPhotos = ({ user, page, setInfinite, setModalPhoto }) => {
 };
 
 export default FeedPhotos;
+
+FeedPhotos.defaultProps = {
+  user: 0,
+  page: 0,
+};
+
+FeedPhotos.propTypes = {
+  user: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  page: PropTypes.oneOfType([
+    PropTypes.string.isRequired,
+    PropTypes.number.isRequired,
+  ]),
+  setInfinite: PropTypes.func,
+  setModalPhoto: PropTypes.func,
+};
